@@ -1,3 +1,4 @@
+const { managerQuestions, engineerQuestions, internQuestions } = require("./lib/Questions")
 const Manager = require("./lib/Manager");
 const Engineer = require("./lib/Engineer");
 const Intern = require("./lib/Intern");
@@ -9,27 +10,58 @@ const OUTPUT_DIR = path.resolve(__dirname, "output");
 const outputPath = path.join(OUTPUT_DIR, "team.html");
 
 const render = require("./lib/htmlRenderer");
+const { throws } = require("assert");
 
+// Introduction to the app
+console.log("Let's build the team!");
 
-// Write code to use inquirer to gather information about the development team members,
-// and to create objects for each team member (using the correct classes as blueprints!)
+let questions = managerQuestions;
+let employeeList = []
+let newEmployeeType = "Manager"
 
-// After the user has input all employees desired, call the `render` function (required
-// above) and pass in an array containing all employee objects; the `render` function will
-// generate and return a block of HTML including templated divs for each employee!
+// Check user input to add new employee
+const checkNewMember = () => {
+    // Set questions specific to employee type
+    if (newEmployeeType === "Engineer") questions = engineerQuestions;
+    else if (newEmployeeType === "Intern") questions = internQuestions;
+    else {
+        // Stop askQuestion function by emptying questions array
+        questions = []
+        // Create file in output folder with rendered html of user inputted employee info
+        fs.writeFile(outputPath, render(employeeList), err => {
+            if (err) throw err;
+            console.log("Successfully created your team profile!");
+        });
+    }
+}
 
-// After you have your html, you're now ready to create an HTML file using the HTML
-// returned from the `render` function. Now write it to a file named `team.html` in the
-// `output` folder. You can use the variable `outputPath` above target this location.
-// Hint: you may need to check if the `output` folder exists and create it if it
-// does not.
+// Create object containing user selected employee type and its corresponding info
+const createEmployee = (info) => {
+    let employee = {}
+    if (newEmployeeType === "Manager") employee = new Manager(info.managerName, info.managerId, info.managerEmail, info.managerOffice)
+    else if (newEmployeeType === "Engineer") employee = new Engineer(info.engineerName, info.engineerId, info.engineerEmail, info.engineerGitHub)
+    else employee = new Intern(info.internName, info.internId, info.internEmail, info.internSchool)
+    employeeList.push(employee)
+}
 
-// HINT: each employee type (manager, engineer, or intern) has slightly different
-// information; write your code to ask different questions via inquirer depending on
-// employee type.
+// Recursive function to ask users for input
+const askQuestion = () => {
+    inquirer
+        .prompt(questions)
+        .then((response) => {
+            // Create employee
+            createEmployee(response)
 
-// HINT: make sure to build out your classes first! Remember that your Manager, Engineer,
-// and Intern classes should all extend from a class named Employee; see the directions
-// for further information. Be sure to test out each class and verify it generates an
-// object with the correct structure and methods. This structure will be crucial in order
-// for the provided `render` function to work! ```
+            // Gets the employee type and sets the next set of questions to ask
+            newEmployeeType = response.newMember;
+            checkNewMember()
+
+            // Exits recursive call when user doesn't add more employees
+            if (questions.length > 0) {
+                askQuestion()
+            }
+        });
+}
+
+// Initiate prompts for employee info
+askQuestion()
