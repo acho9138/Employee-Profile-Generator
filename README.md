@@ -28,7 +28,7 @@ Run the following code in the Terminal or Git Bash:
 ```
 node app.js
 ```
-Then answer the questions to generate the employee profile with the entered content. Click [this link](https://drive.google.com/file/d/11AesTN47DtM9liZeSspdBHQ3Hdh6NAJk/view) to watch a video to see how it works.
+Then answer the questions to generate the employee profile with the entered content. Click [this link](https://drive.google.com/file/d/11znrCXtW4UQv4sCWXNG6OND4d6lb9J-P/view) to watch a video to see how it works.
 
 ![image](./assets/screenshot.png)
 
